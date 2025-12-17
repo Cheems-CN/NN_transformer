@@ -27,9 +27,9 @@ def get_data(download: bool = False) -> pd.DataFrame:
     """
     if download:
         df = pd.read_csv("hf://datasets/dirtycomputer/weibo_senti_100k/weibo_senti_100k.csv")
-        df.to_csv('../../data/weibo_senti_100k.csv', index=False)
+        df.to_csv('../../data/raw/weibo_senti_100k.csv', index=False)
     else:
-        df = pd.read_csv('../../data/weibo_senti_100k.csv')
+        df = pd.read_csv('../../data/raw/weibo_senti_100k.csv')
     print('数据加载完成')
     print('-----数据集前五行-----')
     print(df.head())

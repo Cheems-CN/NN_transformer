@@ -1,4 +1,4 @@
-# 实验过程笔记
+# transfomer实验过程笔记
 
 ## 12月10日-12月11日
 
@@ -185,3 +185,123 @@ print(f"Layer 1: {model.layers[1]}")
 ```
 
 </details>
+
+# 12月16日
+
+## 完成内容
+
+- [x] 完成注意力计算机制分头及多头合并 attention.py
+- [x] 完成前馈网络层 feed_forward.py
+
+- [x] 完成注意力机制与前馈网络层结合的堆叠编码层 encoder_layer
+
+## 实验笔记
+
+### 一、 维度变换与内存机制分头 (Split Heads) 的最佳实践
+
+- **反模式**：使用 `torch.split`或者`torch.chunk`。会返回 Tuple，导致无法进行并行矩阵运算，且涉及内存拷贝。
+- **最佳实践**：`view` + `transpose`。
+  - 逻辑：先 `view` 增加维度，再 `transpose` 交换维度。
+  - 公式：`[Batch, Seq, D_model]` -> `[Batch, Seq, Head, D_k]` -> `[Batch, Head, Seq, D_k]`。
+  - 目的：将 `Head` 维度移至 `Seq` 之前，使每个头在逻辑上独立并行。
+
+**contiguous() 的必要性**
+
+- **现象**：`transpose`、`permute` 等操作只修改 Tensor 的元数据 (Stride)，不改变物理内存顺序。
+- **冲突**：`.view()` 操作强制要求物理内存连续。若在 `transpose` 后直接调用 `view`，会报错 `RuntimeError: input is not contiguous`。
+- **解决方案**：在重塑之前显式调用 `.contiguous()`，强制进行一次内存搬运和对齐。
+  - 常用连招：`x.transpose(1, 2).contiguous().view(...)`
+
+###  二、 PyTorch API 避坑指南** **torch.tensor vs torch.Tensor**
+
+- **torch.tensor (小写)**：工厂函数 (Factory Function)。
+  - 行为：智能推断数据类型 (如输入整数列表则生成 Int64)，总是深拷贝。
+  - 推荐：**始终使用此方式**。
+- **torch.Tensor (大写)**：类构造函数 (Constructor)。
+  - 行为：是 `torch.FloatTensor` 的别名。无论输入什么都强转 Float。
+  - **危险行为**：若传入单个整数 `torch.Tensor(5)`，不会创建标量，而是创建长度为 5 的**未初始化内存** (包含随机垃圾数据)。
+  - Transformer 架构细节:Post-Norm 结构中的 Dropout 位置
+    - **原则**：Dropout 应作用于残差相加**之前**，而非 LayerNorm 之后。
+    - **流程**：`x = Norm(x_old + Dropout(Sublayer(x_old)))`。
+    - **影响**：若放在 Norm 之后，会破坏归一化后的数据分布 (均值0方差1)，导致训练不稳定。
+
+### 三、 Tensor 切分与维度重塑 API 详解
+
+**1. 切分：`torch.chunk` vs `torch.split`** 这两个 API 的核心区别在于：**你是想指定“切几刀”（数量），还是指定“每块多大”（长度）。**
+
+- **`torch.chunk(input, chunks, dim)`**：
+
+  - **语义**：**“均分”**。尝试将 Tensor 在指定维度上平均切成 `chunks` 份。
+  - **行为**：如果不能整除，最后一份会变小。
+  - **场景**：LSTM/GRU 中将合并的门控权重拆分为 Input Gate, Forget Gate 等（数量固定）。
+  - **返回**：Tuple。
+
+- **`torch.split(tensor, split_size_or_sections, dim)`**：
+
+  - **语义**：**“定制”**。按指定的长度切分。
+  - **模式 A (传入 int)**：每一份的长度都是 `split_size`。
+  - **模式 B (传入 list)**：如 `[10, 20, 5]`，精确指定每一份的长度。
+  - **场景**：处理不等长的特征拼接，或者多头注意力中手动拆分（虽然常用 `view` 代替）。
+  - **返回**：Tuple。
+
+  代码对比
+
+  ```python
+  x = torch.randn(10, 6) # [Batch, Feature]
+  
+  # 1. Chunk: 我要切成 3 份 (6/3=2, 每份长2)
+  a, b, c = torch.chunk(x, chunks=3, dim=1) 
+  # a.shape -> (10, 2)
+  
+  # 2. Split (模式A): 我要每份长 2 (结果切出3份)
+  parts = torch.split(x, split_size=2, dim=1) 
+  # len(parts) -> 3
+  
+  # 3. Split (模式B): 我要一份长1，一份长5
+  p1, p2 = torch.split(x, [1, 5], dim=1)
+  # p1 -> (10, 1), p2 -> (10, 5)
+  
+  ```
+
+  **2. 维度重塑：`view` vs `reshape`** Transformer 中用到最多的操作，用于实现多头注意力的“分头”与“合并”。
+
+  - **`Tensor.view(\*shape)`**：
+    - **特性**：**零拷贝 (Zero-copy)**。它仅仅改变 Tensor 的元数据 (Stride/Shape)，不改变底层数据。
+    - **硬性要求**：Tensor 在内存中必须是**连续的 (Contiguous)**。
+    - **报错**：如果 Tensor 不连续（如刚做过 `transpose`），会报 `RuntimeError`。
+    - **推荐**：作为架构师，首选 `view`，因为它能帮你检查内存问题，避免隐式拷贝带来的性能损耗。
+  - **`Tensor.reshape(\*shape)`**：
+    - **特性**：**“老好人”**。如果 Tensor 连续，等价于 `view`；如果不连续，它会自动拷贝数据（相当于 `contiguous().view()`）。
+    - **缺点**：因为行为不确定（可能拷贝也可能不拷贝），在追求极致性能的模型中（如大模型推理），不如 `view` 透明。
+
+  ------
+
+  **3. 维度交换与内存：`transpose` vs `permute`**
+
+  - **`Tensor.transpose(dim0, dim1)`**：
+    - **功能**：**只交换两个维度**。
+    - **场景**：Attention 中交换 Seq_len 和 Head (`transpose(1, 2)`)。
+    - **副作用**：操作后 Tensor 变为 **非连续 (Non-contiguous)**。
+  - **`Tensor.permute(\*dims)`**：
+    - **功能**：**一次性重新排列所有维度**。
+    - **语法**：`x.permute(0, 2, 1, 3)`。
+    - **对比**：比 `transpose` 更灵活，但底层原理一样，也会导致内存不连续。
+
+  ------
+
+  **4. 内存修复：`Tensor.contiguous()`**
+
+  - **定义**：强制将 Tensor 的数据在内存中重新排列，使其物理顺序与逻辑顺序一致。
+  - **代价**：涉及**内存申请和数据搬运**（深拷贝），有计算开销。
+  - **Transformer 必背连招**：
+
+  ```python
+  # 错误写法 (RuntimeError)
+  # x = x.transpose(1, 2).view(batch, -1) 
+  
+  # 正确写法
+  x = x.transpose(1, 2).contiguous().view(batch, -1)
+  ```
+
+  
+

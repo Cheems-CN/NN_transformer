@@ -62,3 +62,76 @@ class ScaledDotProductAttention(nn.Module):
         output = torch.matmul(attn, v)
 
         return output, attn
+
+
+
+
+class MultiHeadAttention(nn.Module):
+    """
+    多头注意力机制模块 (Multi-Head Attention)。
+
+    参数:
+        d_model (int): 模型的维度 (例如 512)。
+        n_head (int): 注意力头的数量 (例如 8)。
+    """
+
+    def __init__(self, d_model, n_head):
+        super().__init__()
+
+        assert d_model % n_head == 0, "模型维度不能整除注意力头数"
+        self.d_model = d_model
+        self.n_head = n_head
+        self.d_k = d_model // n_head
+
+
+        # 输入维度: d_model, 输出维度: d_model
+        self.w_q = nn.Linear(d_model,d_model)
+        self.w_k = nn.Linear(d_model,d_model)
+        self.w_v = nn.Linear(d_model,d_model)
+
+
+        self.attention = ScaledDotProductAttention()
+
+
+        self.fc = nn.Linear(d_model,d_model)
+
+    def forward(self, q, k, v, mask=None):
+        """
+        前向传播逻辑。
+
+        参数:
+            q, k, v: 输入张量，形状均为 [batch_size, seq_len, d_model]
+            mask: 掩码张量
+        """
+
+        # 形状保持不变: [batch, seq, d_model]
+
+        seq_len = q.size(1)
+        batch_size = q.size(0)
+        d_model = q.size(2)
+
+        q = self.w_q(q)
+        k = self.w_k(k)
+        v = self.w_v(v)
+
+
+
+
+        q = q.view(batch_size,-1,self.n_head,self.d_k)
+        k = k.view(batch_size,-1,self.n_head,self.d_k)
+        v = v.view(batch_size,-1,self.n_head,self.d_k)
+
+
+        q = torch.transpose(q, 1, 2)
+        k = torch.transpose(k, 1, 2)
+        v = torch.transpose(v, 1, 2)
+
+
+        output, attention_weights = self.attention(q,k,v,mask)
+
+        output = output.transpose(1,2).contiguous().view(-1,seq_len,d_model)
+
+
+        output = self.fc(output)
+
+        return output, attention_weights
