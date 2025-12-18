@@ -305,3 +305,66 @@ print(f"Layer 1: {model.layers[1]}")
 
   
 
+## 12月17日
+
+### 完成内容 
+
+- [x] 完成输入嵌入到编码的完整编码块编写 encoder.py
+- [x] 完成解码堆叠层编写 decoder_layer.py
+- [x] 完成输出嵌入到解码的完整解码块编写，包含掩码生成 decoder.py
+- [x] 完成完整模型组装，从编码到解码到最后线性输出层完全实现,至此模型搭建完成 transfomer.py
+
+### 实验笔记
+
+####  一. 矩阵几何系列：`torch.tril` 及其家族
+
+这是今天实现“因果掩码 (Subsequent Mask)”的核心。
+
+- **`torch.tril(input, diagonal=0)`**
+
+  - **全称**: **Tri**angle **L**ower (下三角矩阵)。
+
+  - **作用**: 将矩阵的上三角部分全部置为 0，保留下三角部分。
+
+  - **参数 `diagonal`**: 控制对角线的位置。默认为 0 (主对角线)。如果设为 -1，则主对角线也会被清零。
+
+  - **场景**: Transformer Decoder 中用于屏蔽未来时刻（让 $t$ 时刻只能看 $0...t$）。
+
+  - **代码实战**:
+
+    Python
+
+    ```
+    # 生成一个全 1 的方阵，然后只保留下三角
+    mask = torch.tril(torch.ones(seq_len, seq_len))
+    ```
+
+- **延伸：`torch.triu(input, diagonal=0)`**
+
+  - **全称**: **Tri**angle **U**pper (上三角矩阵)。
+  - **作用**: 与 `tril` 相反，保留右上角，将左下角置为 0。
+  - **场景**: 虽然标准 Transformer 用不到，但在某些双向语言模型（如 XLNet）或计算矩阵的协方差时会用到。
+
+### 二. 维度扩展系列：`unsqueeze` (广播之源)
+
+这是实现 Padding Mask 能够自动适配 Multi-Head Attention 的关键。
+
+- **`Tensor.unsqueeze(dim)`**
+
+  - **作用**: 在指定位置插入一个**长度为 1** 的新维度。
+
+  - **物理意义**: 并没有增加数据，只是改变了看待数据的“视角”，为广播机制 (Broadcasting) 做准备。
+
+  - **实战解析**:
+
+    ```python
+    # src: [Batch, Seq]
+    mask = (src != 0)          # [Batch, Seq]
+    
+    # 第一次 unsqueeze(1): [Batch, 1, Seq]  -> 对应 Head 维度
+    # 第二次 unsqueeze(2): [Batch, 1, 1, Seq] -> 对应 Query 维度
+    mask = mask.unsqueeze(1).unsqueeze(2)
+    ```
+
+  - **核心逻辑**: PyTorch 看到维度为 `1` 时，会自动把数据复制 N 份以匹配其他张量的形状。
+
