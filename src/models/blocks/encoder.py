@@ -58,33 +58,42 @@ class Encoder(nn.Module):
         # 编码器的输出通常会做一次 LayerNorm，以便解码器能够更好地处理
         self.norm = nn.LayerNorm(d_model)
 
-    def forward(self, src, mask):
+    def forward(self, src=None, vit_input=None, mask=None):
         """
-        前向传播逻辑。
+        前向传播逻辑。支持 NLP (src) 和 ViT (vit_input) 两种输入模式。
 
         Args:
-            src (torch.Tensor): 输入序列索引。
+            src (torch.Tensor, optional): 输入序列索引 (NLP模式)。
                 Shape: [batch_size, seq_len]
-            mask (torch.Tensor): 填充掩码 (Padding Mask)。
+            vit_input (torch.Tensor, optional): 预嵌入的向量序列 (ViT模式)。
+                Shape: [batch_size, seq_len, d_model]
+            mask (torch.Tensor, optional): 填充掩码 (Padding Mask)。
                 Shape: [batch_size, 1, 1, seq_len]
-                (用于在 Self-Attention 中屏蔽 pad token)
 
         Returns:
             torch.Tensor: 编码器最终的上下文输出。
                 Shape: [batch_size, seq_len, d_model]
+
+        Raises:
+            ValueError: 当同时传入 src 和 vit_input，或二者都未传入时抛出。
         """
 
-        # --- A. 预处理 (One-time) ---
-        # src: [batch, seq_len] -> x: [batch, seq_len, d_model]
-        # 此时 x 包含了 Token Embedding 和 Positional Encoding
-        x = self.embedding(src)
+        # --- A. 预处理 (输入路由) ---
+        if src is not None and vit_input is not None:
+            raise ValueError("冲突: 不可同时传入 'src' 和 'vit_input'。")
+
+        if vit_input is not None:
+            # ViT 模式: Bypass embedding layer
+            x = vit_input
+        elif src is not None:
+            # NLP 模式: Standard embedding lookup
+            x = self.embedding(src)
+        else:
+            raise ValueError("缺失: 必须传入 'src' (NLP) 或 'vit_input' (ViT) 其中之一。")
 
         # --- B. 堆叠循环 (Loop N times) ---
-        # x 的形状始终保持 [batch, seq_len, d_model]
         for layer in self.layers:
-            # EncoderLayer 的 forward 只需要 x 和 mask
             x = layer(x, mask)
 
         # --- C. 最终出口 ---
-        # 归一化处理，形状不变: [batch, seq_len, d_model]
         return self.norm(x)
