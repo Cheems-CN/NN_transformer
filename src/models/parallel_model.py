@@ -11,6 +11,39 @@ from src.models.blocks.encoder import Encoder
 from src.models.layers.patch_embedding import PatchEmbedding
 
 
+class BasicResBlock(nn.Module):
+    """基础残差块"""
+    
+    def __init__(self, in_channels, out_channels, stride=1):
+        super().__init__()
+        
+        self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, 
+                               stride=stride, padding=1, bias=False)
+        self.bn1 = nn.BatchNorm2d(out_channels)
+        self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, 
+                               stride=1, padding=1, bias=False)
+        self.bn2 = nn.BatchNorm2d(out_channels)
+        
+        # Shortcut connection
+        if stride != 1 or in_channels != out_channels:
+            self.shortcut = nn.Sequential(
+                nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=stride, bias=False),
+                nn.BatchNorm2d(out_channels)
+            )
+        else:
+            self.shortcut = nn.Identity()
+    
+    def forward(self, x):
+        identity = self.shortcut(x)
+        
+        out = F.relu(self.bn1(self.conv1(x)))
+        out = self.bn2(self.conv2(out))
+        out = out + identity
+        out = F.relu(out)
+        
+        return out
+
+
 class CNNBranch(nn.Module):
     """
     CNN分支
@@ -30,10 +63,10 @@ class CNNBranch(nn.Module):
             nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         )
         
-        # ResNet-style blocks
-        self.conv2 = self._make_layer(base_channels, base_channels * 2, 2, stride=1)
-        self.conv3 = self._make_layer(base_channels * 2, base_channels * 4, 2, stride=2)
-        self.conv4 = self._make_layer(base_channels * 4, base_channels * 8, 2, stride=2)
+        # ResNet blocks
+        self.layer1 = self._make_layer(base_channels, base_channels * 2, 2, stride=1)
+        self.layer2 = self._make_layer(base_channels * 2, base_channels * 4, 2, stride=2)
+        self.layer3 = self._make_layer(base_channels * 4, base_channels * 8, 2, stride=2)
         
         # 全局平均池化
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
@@ -44,36 +77,17 @@ class CNNBranch(nn.Module):
         self._init_weights()
     
     def _make_layer(self, in_channels, out_channels, num_blocks, stride):
-        """构建ResNet-style层"""
+        """构建ResNet层"""
         layers = []
         
         # 第一个block可能有降采样
-        layers.append(nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1, bias=False),
-            nn.BatchNorm2d(out_channels),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False),
-            nn.BatchNorm2d(out_channels)
-        ))
-        
-        # 残差连接
-        if stride != 1 or in_channels != out_channels:
-            layers.append(nn.Sequential(
-                nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=stride, bias=False),
-                nn.BatchNorm2d(out_channels)
-            ))
+        layers.append(BasicResBlock(in_channels, out_channels, stride))
         
         # 其余blocks
         for _ in range(1, num_blocks):
-            layers.append(nn.Sequential(
-                nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False),
-                nn.BatchNorm2d(out_channels),
-                nn.ReLU(inplace=True),
-                nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False),
-                nn.BatchNorm2d(out_channels)
-            ))
+            layers.append(BasicResBlock(out_channels, out_channels, stride=1))
         
-        return nn.ModuleList(layers)
+        return nn.Sequential(*layers)
     
     def _init_weights(self):
         """初始化权重"""
@@ -95,42 +109,9 @@ class CNNBranch(nn.Module):
             features: [B, output_dim] - CNN特征向量
         """
         x = self.conv1(x)
-        
-        # Conv2
-        identity = x
-        for i, block in enumerate(self.conv2):
-            if i == 0:
-                x = F.relu(block(x))
-            elif i == 1:
-                identity = block(identity)
-                x = F.relu(x + identity)
-            else:
-                identity = x
-                x = F.relu(block(x) + identity)
-        
-        # Conv3
-        identity = x
-        for i, block in enumerate(self.conv3):
-            if i == 0:
-                x = F.relu(block(x))
-            elif i == 1:
-                identity = block(identity)
-                x = F.relu(x + identity)
-            else:
-                identity = x
-                x = F.relu(block(x) + identity)
-        
-        # Conv4
-        identity = x
-        for i, block in enumerate(self.conv4):
-            if i == 0:
-                x = F.relu(block(x))
-            elif i == 1:
-                identity = block(identity)
-                x = F.relu(x + identity)
-            else:
-                identity = x
-                x = F.relu(block(x) + identity)
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
         
         # 全局池化和降维
         x = self.avgpool(x)

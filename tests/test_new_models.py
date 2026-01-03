@@ -1,5 +1,5 @@
 """
-测试新增的并行模型和嵌入式模型
+Test the new parallel and embedded fusion models
 """
 
 import sys
