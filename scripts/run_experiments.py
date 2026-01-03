@@ -34,8 +34,8 @@ def run_command(cmd, description):
 
 
 def train_all_models(data_root, epochs, batch_size):
-    """训练所有三种模型"""
-    models = ['pure_cnn', 'pure_vit', 'hybrid']
+    """训练所有五种模型"""
+    models = ['pure_cnn', 'pure_vit', 'hybrid', 'parallel', 'embedded']
     
     for model_name in models:
         print(f"\n\n{'#'*70}")
@@ -61,7 +61,7 @@ def train_all_models(data_root, epochs, batch_size):
 
 def evaluate_all_models(data_root, batch_size):
     """评估所有模型"""
-    models = ['pure_cnn', 'pure_vit', 'hybrid']
+    models = ['pure_cnn', 'pure_vit', 'hybrid', 'parallel', 'embedded']
     
     for model_name in models:
         checkpoint_path = f'./checkpoints/{model_name}_best.pth'
@@ -93,7 +93,7 @@ def generate_comparison_report():
     print(f"# 生成对比报告")
     print(f"{'#'*70}\n")
     
-    models = ['pure_cnn', 'pure_vit', 'hybrid']
+    models = ['pure_cnn', 'pure_vit', 'hybrid', 'parallel', 'embedded']
     results_dir = Path('./results')
     
     # 收集所有模型的结果
@@ -219,10 +219,12 @@ def generate_comparison_report():
         
         f.write("一、实验概述\n")
         f.write("-"*70 + "\n")
-        f.write("本实验对比了三种深度学习模型在脑肿瘤MRI影像分类任务上的性能：\n")
+        f.write("本实验对比了五种深度学习模型在脑肿瘤MRI影像分类任务上的性能：\n")
         f.write("1. Pure CNN (纯卷积神经网络) - 基于ResNet18架构\n")
         f.write("2. Pure ViT (纯视觉Transformer) - 基于ViT架构\n")
-        f.write("3. Hybrid Model (混合模型) - CNN+Transformer串行融合架构\n\n")
+        f.write("3. Hybrid Model (混合模型) - CNN+Transformer串行融合架构\n")
+        f.write("4. Parallel Model (并行模型) - CNN和Transformer并行融合架构\n")
+        f.write("5. Embedded Model (嵌入式模型) - CNN中嵌入Transformer注意力模块\n\n")
         
         f.write("数据集信息：\n")
         f.write("- 训练集：2870张图像\n")

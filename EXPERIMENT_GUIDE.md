@@ -5,7 +5,7 @@
 ### ✅ 已完成的工作
 
 1. **完整的代码实现**
-   - ✅ 三种模型架构（Pure CNN、Pure ViT、Hybrid Model）
+   - ✅ 五种模型架构（Pure CNN、Pure ViT、Hybrid、Parallel、Embedded）
    - ✅ 数据加载和预处理pipeline
    - ✅ 统一的训练框架
    - ✅ 完整的评估和对比系统
@@ -58,15 +58,23 @@ python scripts/train.py --model pure_cnn --epochs 50 --batch_size 32
 # 2. 训练纯ViT模型  
 python scripts/train.py --model pure_vit --epochs 50 --batch_size 32
 
-# 3. 训练混合模型
+# 3. 训练混合模型（串行融合）
 python scripts/train.py --model hybrid --epochs 50 --batch_size 32
 
-# 4. 评估所有模型
+# 4. 训练并行模型（并行融合）- 新增
+python scripts/train.py --model parallel --epochs 50 --batch_size 32
+
+# 5. 训练嵌入式模型（嵌入式融合）- 新增
+python scripts/train.py --model embedded --epochs 50 --batch_size 32
+
+# 6. 评估所有模型
 python scripts/evaluate.py --model pure_cnn --checkpoint ./checkpoints/pure_cnn_best.pth
 python scripts/evaluate.py --model pure_vit --checkpoint ./checkpoints/pure_vit_best.pth
 python scripts/evaluate.py --model hybrid --checkpoint ./checkpoints/hybrid_best.pth
+python scripts/evaluate.py --model parallel --checkpoint ./checkpoints/parallel_best.pth
+python scripts/evaluate.py --model embedded --checkpoint ./checkpoints/embedded_best.pth
 
-# 5. 生成对比报告
+# 7. 生成对比报告
 python -c "
 import sys
 sys.path.insert(0, '.')
@@ -91,7 +99,13 @@ checkpoints/
 ├── pure_vit_curves.png
 ├── hybrid_best.pth
 ├── hybrid_history.json
-└── hybrid_curves.png
+├── hybrid_curves.png
+├── parallel_best.pth              # 并行模型（新增）
+├── parallel_history.json
+├── parallel_curves.png
+├── embedded_best.pth              # 嵌入式模型（新增）
+├── embedded_history.json
+└── embedded_curves.png
 ```
 
 ### 2. 查看评估结果
@@ -106,6 +120,10 @@ results/
 ├── pure_vit_confusion_matrix.png
 ├── hybrid_results.json
 ├── hybrid_confusion_matrix.png
+├── parallel_results.json           # 并行模型（新增）
+├── parallel_confusion_matrix.png
+├── embedded_results.json           # 嵌入式模型（新增）
+├── embedded_confusion_matrix.png
 ├── model_comparison.csv            # 对比表格
 ├── model_comparison.png            # 整体对比图
 ├── per_class_comparison.png        # 各类别对比图
@@ -123,6 +141,8 @@ results/
 pure_cnn,95.43,95.21,95.43,95.30
 pure_vit,96.19,96.05,96.19,96.11
 hybrid,97.21,97.15,97.21,97.18
+parallel,XX.XX,XX.XX,XX.XX,XX.XX
+embedded,XX.XX,XX.XX,XX.XX,XX.XX
 ```
 
 将 `results.tex` 中的表格更新为：
@@ -134,7 +154,9 @@ hybrid,97.21,97.15,97.21,97.18
 \hline
 Pure CNN & 95.43 & 95.21 & 95.43 & 95.30 \\
 Pure ViT & 96.19 & 96.05 & 96.19 & 96.11 \\
-Hybrid Model & \textbf{97.21} & \textbf{97.15} & \textbf{97.21} & \textbf{97.18} \\
+Hybrid (Serial) & 97.21 & 97.15 & 97.21 & 97.18 \\
+Parallel Fusion & XX.XX & XX.XX & XX.XX & XX.XX \\
+Embedded Fusion & XX.XX & XX.XX & XX.XX & XX.XX \\
 \hline
 \end{tabular}
 ```
@@ -177,7 +199,7 @@ pdflatex paper.tex
 
 ## 🎯 预期结果
 
-基于混合模型的设计理念，预期实验结果应该显示：
+基于不同融合策略的设计理念，预期实验结果应该显示：
 
 1. **Pure CNN**
    - 优势：训练快速，参数少，局部特征提取强
@@ -189,10 +211,20 @@ pdflatex paper.tex
    - 准确率：~94-96%
    - 特点：可能在训练初期较慢，但最终性能较好
 
-3. **Hybrid Model**（预期最优）
-   - 优势：结合CNN和Transformer优势
-   - 准确率：~95-97%+
-   - 特点：整体性能最均衡，各类别表现稳定
+3. **Hybrid Model (串行融合)**
+   - 优势：先提取局部特征，再建模全局依赖
+   - 准确率：~94-96%
+   - 特点：理论上结合两者优势，但实际可能受限于串行结构
+
+4. **Parallel Model (并行融合)** - 新增
+   - 优势：同时提取局部和全局特征，特征更加丰富
+   - 准确率：预期~95-97%+
+   - 特点：参数量较大(31M)，但特征互补性强，可能优于串行
+
+5. **Embedded Model (嵌入式融合)** - 新增
+   - 优势：参数量小(4.4M)，效率高，适合移动端
+   - 准确率：预期~94-96%
+   - 特点：在保持较小模型的同时获得Transformer的全局建模能力
 
 ## ⚠️ 注意事项
 
