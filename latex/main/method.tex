@@ -1,0 +1,118 @@
+\section{实验方法}
+
+\subsection{数据集}
+
+本研究采用公开的脑肿瘤MRI影像数据集，该数据集包含四类脑肿瘤影像：胶质瘤（Glioma Tumor）、脑膜瘤（Meningioma Tumor）、无肿瘤（No Tumor）和垂体瘤（Pituitary Tumor）。数据集划分如下：
+
+\begin{itemize}
+    \item 训练集：2870张影像
+    \begin{itemize}
+        \item 胶质瘤：826张
+        \item 脑膜瘤：822张
+        \item 无肿瘤：395张
+        \item 垂体瘤：827张
+    \end{itemize}
+    \item 测试集：394张影像
+    \begin{itemize}
+        \item 胶质瘤：100张
+        \item 脑膜瘤：115张
+        \item 无肿瘤：105张
+        \item 垂体瘤：74张
+    \end{itemize}
+\end{itemize}
+
+所有图像均统一调整为 $224 \times 224$ 像素的RGB格式。训练集采用数据增强策略，包括随机水平翻转（概率0.5）、随机旋转（$\pm 15$度）和颜色抖动（亮度、对比度和饱和度各0.2），以提高模型的泛化能力。所有图像均使用ImageNet预训练模型的标准归一化参数（mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]）进行归一化处理。
+
+\subsection{模型架构}
+
+本研究实现并对比了三种深度学习模型架构：
+
+\subsubsection{纯CNN模型（Pure CNN）}
+
+基于ResNet18架构实现的纯卷积神经网络模型，包含以下组件：
+\begin{itemize}
+    \item 初始卷积层：$7 \times 7$ 卷积核，步长2，后接批归一化和ReLU激活
+    \item 四个残差块组：分别输出64、128、256和512个通道
+    \item 每个残差块包含两个 $3 \times 3$ 卷积层和残差连接
+    \item 全局平均池化层：将特征图聚合为固定维度向量
+    \item 全连接分类头：输出4类概率分布
+\end{itemize}
+
+模型总参数量约为11.18M。该模型充分利用了卷积操作的局部感受野特性，专注于捕捉病灶的边缘纹理等局部细节特征。
+
+\subsubsection{纯ViT模型（Pure Vision Transformer）}
+
+基于Vision Transformer (ViT)架构实现，采用以下配置：
+\begin{itemize}
+    \item Patch大小：$16 \times 16$，将 $224 \times 224$ 图像切分为196个patches
+    \item 嵌入维度（$d_{model}$）：512
+    \item Transformer层数：8层
+    \item 多头注意力头数：8
+    \item 前馈网络维度（$d_{ff}$）：2048
+    \item Dropout比率：0.1
+    \item 分类Token（[CLS]）：用于聚合全局特征的可学习向量
+    \item 可学习的位置编码：为每个patch添加位置信息
+\end{itemize}
+
+该模型通过自注意力机制建立图像patches之间的长程依赖关系，能够捕捉由占位效应引起的全局解剖结构变化。
+
+\subsubsection{混合模型（CNN + Transformer Hybrid）}
+
+创新性地提出了串行融合架构，将CNN和Transformer的优势相结合：
+
+\textbf{架构流程：}
+\begin{enumerate}
+    \item \textbf{CNN特征提取阶段}：采用深度卷积网络（基于ResNet设计）作为前端特征提取器
+    \begin{itemize}
+        \item 初始卷积：$7 \times 7$ 卷积，步长2，输出64通道
+        \item 渐进式特征提取：通过四个卷积块将特征图从64通道逐步提升至512通道
+        \item 输出特征图尺寸：$14 \times 14 \times 512$
+    \end{itemize}
+    
+    \item \textbf{特征序列化}：将CNN输出的特征图展平为序列
+    \begin{itemize}
+        \item 将 $14 \times 14$ 的空间特征图展平为长度为196的序列
+        \item 通过线性投影将512维特征映射到Transformer的嵌入维度（512维）
+    \end{itemize}
+    
+    \item \textbf{Transformer编码阶段}：利用4层Transformer Encoder对特征序列进行全局建模
+    \begin{itemize}
+        \item 在序列头部添加可学习的[CLS] token
+        \item 添加可学习的位置编码
+        \item 通过多头自注意力机制建立特征之间的长程依赖关系
+    \end{itemize}
+    
+    \item \textbf{分类阶段}：提取[CLS] token的输出表征，通过全连接层输出分类结果
+\end{enumerate}
+
+\textbf{设计理念：}该混合架构的核心设计思想是"局部-全局"特征融合：CNN模块发挥其归纳偏置优势，高效提取病灶的局部纹理特征和边缘信息；Transformer模块则在CNN提取的高层语义特征基础上，通过自注意力机制建立跨区域的长程依赖关系，捕捉由肿瘤占位效应引起的全局解剖结构变化（如脑室压迫、中线偏移等）。
+
+\subsection{训练策略}
+
+所有模型均采用相同的训练配置以确保公平对比：
+
+\begin{itemize}
+    \item \textbf{优化器}：AdamW优化器，权重衰减系数0.01
+    \item \textbf{初始学习率}：$1 \times 10^{-4}$
+    \item \textbf{学习率调度}：余弦退火（Cosine Annealing），在训练过程中逐步降低学习率
+    \item \textbf{批大小}：32
+    \item \textbf{训练轮数}：50 epochs
+    \item \textbf{损失函数}：交叉熵损失（Cross-Entropy Loss）
+    \item \textbf{硬件配置}：NVIDIA GPU（若可用）或CPU
+\end{itemize}
+
+模型在训练过程中实时记录训练损失和准确率，每个epoch后在验证集上评估性能，保存验证准确率最高的模型权重作为最佳模型。
+
+\subsection{评估指标}
+
+采用多种指标全面评估模型性能：
+
+\begin{itemize}
+    \item \textbf{准确率（Accuracy）}：正确分类的样本占总样本的比例
+    \item \textbf{精确率（Precision）}：针对每个类别，预测为该类别的样本中真正属于该类别的比例
+    \item \textbf{召回率（Recall）}：针对每个类别，该类别样本中被正确识别的比例
+    \item \textbf{F1分数（F1-Score）}：精确率和召回率的调和平均数，综合反映模型性能
+    \item \textbf{混淆矩阵（Confusion Matrix）}：直观展示模型在各类别间的分类情况
+\end{itemize}
+
+所有指标均在独立的测试集上计算，确保评估的客观性。同时，针对四个类别分别计算上述指标，并采用加权平均（按各类别样本数加权）得到整体性能指标。
