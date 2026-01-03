@@ -4,10 +4,12 @@
 
 ## 项目概述
 
-本项目实现了三种深度学习模型用于脑肿瘤MRI影像的自动分类：
+本项目实现了五种深度学习模型用于脑肿瘤MRI影像的自动分类：
 1. **Pure CNN** - 基于ResNet18的纯卷积神经网络
 2. **Pure ViT** - 纯视觉Transformer模型
-3. **Hybrid Model** - CNN+Transformer混合模型（创新架构）
+3. **Hybrid Model** - CNN+Transformer串行融合架构
+4. **Parallel Model** - CNN和Transformer并行融合架构（新增）
+5. **Embedded Model** - CNN中嵌入Transformer注意力模块（新增）
 
 数据集包含4类脑肿瘤影像：
 - 胶质瘤（Glioma Tumor）
@@ -29,7 +31,9 @@ NN_transformer/
 │   ├── models/
 │   │   ├── pure_cnn.py               # 纯CNN模型
 │   │   ├── vit.py                    # 纯ViT模型
-│   │   ├── hybrid_model.py           # 混合模型
+│   │   ├── hybrid_model.py           # 串行混合模型
+│   │   ├── parallel_model.py         # 并行融合模型（新增）
+│   │   ├── embedded_model.py         # 嵌入式融合模型（新增）
 │   │   ├── blocks/                   # Transformer基础模块
 │   │   └── layers/                   # 网络层实现
 │   └── utils/
@@ -116,8 +120,14 @@ python scripts/train.py --model pure_cnn --epochs 50 --batch_size 32
 # 训练纯ViT模型
 python scripts/train.py --model pure_vit --epochs 50 --batch_size 32
 
-# 训练混合模型
+# 训练串行混合模型
 python scripts/train.py --model hybrid --epochs 50 --batch_size 32
+
+# 训练并行融合模型（新增）
+python scripts/train.py --model parallel --epochs 50 --batch_size 32
+
+# 训练嵌入式融合模型（新增）
+python scripts/train.py --model embedded --epochs 50 --batch_size 32
 ```
 
 ### 方法3：评估已训练模型
@@ -165,14 +175,14 @@ python scripts/quick_demo.py
 - 适用场景: 注重局部纹理细节的分类任务
 
 ### Pure ViT (Vision Transformer)
-- 参数量: 根据配置可调
+- 参数量: 根据配置可调（默认配置约30M）
 - 特点: 全局建模能力强，捕捉长程依赖
 - 适用场景: 需要理解全局结构关系的任务
 
-### Hybrid Model (CNN + Transformer)
-- 参数量: 根据配置可调
-- 特点: 结合CNN局部特征提取和Transformer全局建模
-- 优势: 兼顾局部细节和全局结构，性能最优
+### Hybrid Model (串行融合)
+- 参数量: 根据配置可调（默认配置约25M）
+- 特点: CNN先提取局部特征，再通过Transformer建模全局依赖
+- 架构: 串行连接，CNN输出作为Transformer输入
 
 架构流程：
 ```
@@ -188,6 +198,59 @@ Add [CLS] Token + Position Encoding
     ↓
 Transformer Encoder (全局建模)
     ↓
+Classification Head (分类输出)
+```
+
+### Parallel Model (并行融合) - 新增
+- 参数量: ~31.36M
+- 特点: CNN和Transformer并行处理输入，融合互补特征
+- 优势: 同时获取局部和全局信息，特征更加丰富
+
+架构流程：
+```
+                Input Image
+                     |
+            +--------+--------+
+            ↓                 ↓
+    CNN Branch          ViT Branch
+  (局部特征提取)      (全局特征提取)
+            ↓                 ↓
+      [B, 512]           [B, 512]
+            |                 |
+            +--------+--------+
+                     ↓
+           Feature Fusion (拼接+投影)
+                     ↓
+             Classification Head
+                     ↓
+                  Output
+```
+
+### Embedded Model (嵌入式融合) - 新增
+- 参数量: ~4.40M
+- 特点: 在CNN主干网络中嵌入Transformer注意力模块（MobileViT风格）
+- 优势: 参数量小，计算高效，适合移动端部署
+
+架构流程：
+```
+Input Image
+    ↓
+Stem Conv (初始卷积)
+    ↓
+Stage 1 (纯卷积层)
+    ↓
+Stage 2 (纯卷积层)
+    ↓
+Stage 3 (Conv + Transformer Block)
+    ↓
+Stage 4 (Conv + Transformer Block)
+    ↓
+Global Average Pooling
+    ↓
+Classification Head
+    ↓
+Output
+```
 Classification Head (分类输出)
 ```
 
