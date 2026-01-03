@@ -1,1 +1,43 @@
 /test.py
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Environments
+.env
+.venv
+env/
+venv/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Model checkpoints and results
+checkpoints/
+results/
+*.pth
+*.pt
+
+# Data (keep structure, ignore files)
+# Uncomment if needed:
+# data/raw/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
