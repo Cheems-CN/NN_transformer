@@ -1,0 +1,59 @@
+{
+    "accuracy": 0.44416243654822335,
+    "precision": 0.47162025518528694,
+    "recall": 0.44416243654822335,
+    "f1_score": 0.38733732361272766,
+    "per_class": {
+        "glioma_tumor": {
+            "precision": 0.6111111111111112,
+            "recall": 0.11,
+            "f1_score": 0.1864406779661017,
+            "support": 100
+        },
+        "meningioma_tumor": {
+            "precision": 0.4496124031007752,
+            "recall": 0.5043478260869565,
+            "f1_score": 0.47540983606557374,
+            "support": 115
+        },
+        "no_tumor": {
+            "precision": 0.44075829383886256,
+            "recall": 0.8857142857142857,
+            "f1_score": 0.5886075949367089,
+            "support": 105
+        },
+        "pituitary_tumor": {
+            "precision": 0.3611111111111111,
+            "recall": 0.17567567567567569,
+            "f1_score": 0.23636363636363636,
+            "support": 74
+        }
+    },
+    "confusion_matrix": [
+        [
+            11,
+            32,
+            44,
+            13
+        ],
+        [
+            1,
+            58,
+            51,
+            5
+        ],
+        [
+            1,
+            6,
+            93,
+            5
+        ],
+        [
+            5,
+            33,
+            23,
+            13
+        ]
+    ],
+    "classification_report": "                  precision    recall  f1-score   support\n\n    glioma_tumor     0.6111    0.1100    0.1864       100\nmeningioma_tumor     0.4496    0.5043    0.4754       115\n        no_tumor     0.4408    0.8857    0.5886       105\n pituitary_tumor     0.3611    0.1757    0.2364        74\n\n        accuracy                         0.4442       394\n       macro avg     0.4656    0.4189    0.3717       394\n    weighted avg     0.4716    0.4442    0.3873       394\n"
+}

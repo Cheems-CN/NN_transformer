@@ -27,7 +27,7 @@ venv/
 
 # Model checkpoints and results
 checkpoints/
-results/
+
 *.pth
 *.pt
 

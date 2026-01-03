@@ -1,0 +1,125 @@
+======================================================================
+脑肿瘤MRI影像分类实验报告
+======================================================================
+
+一、实验概述
+----------------------------------------------------------------------
+本实验对比了五种深度学习模型在脑肿瘤MRI影像分类任务上的性能：
+1. Pure CNN (纯卷积神经网络) - 基于ResNet18架构
+2. Pure ViT (纯视觉Transformer) - 基于ViT架构
+3. Hybrid Model (混合模型) - CNN+Transformer串行融合架构
+4. Parallel Model (并行模型) - CNN和Transformer并行融合架构
+5. Embedded Model (嵌入式模型) - CNN中嵌入Transformer注意力模块
+
+数据集信息：
+- 训练集：2870张图像
+- 测试集：394张图像
+- 类别：4类（glioma_tumor, meningioma_tumor, no_tumor, pituitary_tumor）
+
+二、整体性能对比
+----------------------------------------------------------------------
+      模型   准确率 (%)   精确率 (%)   召回率 (%)  F1分数 (%)
+pure_cnn 78.172589 83.383309 78.172589 73.767524
+pure_vit 44.416244 47.162026 44.416244 38.733732
+  hybrid 76.395939 81.912943 76.395939 71.473409
+parallel 80.710660 84.219299 80.710660 77.846959
+embedded 78.426396 83.488651 78.426396 74.511158
+
+最佳模型: parallel (准确率: 80.71%)
+
+三、各类别详细性能
+----------------------------------------------------------------------
+
+PURE_CNN:
+  glioma_tumor:
+    Precision: 100.00%
+    Recall: 24.00%
+    F1-Score: 38.71%
+  meningioma_tumor:
+    Precision: 72.15%
+    Recall: 99.13%
+    F1-Score: 83.52%
+  no_tumor:
+    Precision: 75.00%
+    Recall: 100.00%
+    F1-Score: 85.71%
+  pituitary_tumor:
+    Precision: 90.28%
+    Recall: 87.84%
+    F1-Score: 89.04%
+
+PURE_VIT:
+  glioma_tumor:
+    Precision: 61.11%
+    Recall: 11.00%
+    F1-Score: 18.64%
+  meningioma_tumor:
+    Precision: 44.96%
+    Recall: 50.43%
+    F1-Score: 47.54%
+  no_tumor:
+    Precision: 44.08%
+    Recall: 88.57%
+    F1-Score: 58.86%
+  pituitary_tumor:
+    Precision: 36.11%
+    Recall: 17.57%
+    F1-Score: 23.64%
+
+HYBRID:
+  glioma_tumor:
+    Precision: 100.00%
+    Recall: 21.00%
+    F1-Score: 34.71%
+  meningioma_tumor:
+    Precision: 71.52%
+    Recall: 98.26%
+    F1-Score: 82.78%
+  no_tumor:
+    Precision: 73.94%
+    Recall: 100.00%
+    F1-Score: 85.02%
+  pituitary_tumor:
+    Precision: 84.93%
+    Recall: 83.78%
+    F1-Score: 84.35%
+
+PARALLEL:
+  glioma_tumor:
+    Precision: 100.00%
+    Recall: 35.00%
+    F1-Score: 51.85%
+  meningioma_tumor:
+    Precision: 78.01%
+    Recall: 95.65%
+    F1-Score: 85.94%
+  no_tumor:
+    Precision: 82.68%
+    Recall: 100.00%
+    F1-Score: 90.52%
+  pituitary_tumor:
+    Precision: 74.73%
+    Recall: 91.89%
+    F1-Score: 82.42%
+
+EMBEDDED:
+  glioma_tumor:
+    Precision: 100.00%
+    Recall: 27.00%
+    F1-Score: 42.52%
+  meningioma_tumor:
+    Precision: 72.78%
+    Recall: 100.00%
+    F1-Score: 84.25%
+  no_tumor:
+    Precision: 75.00%
+    Recall: 100.00%
+    F1-Score: 85.71%
+  pituitary_tumor:
+    Precision: 89.86%
+    Recall: 83.78%
+    F1-Score: 86.71%
+
+======================================================================
+报告生成完成
+======================================================================
