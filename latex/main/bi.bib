@@ -1,0 +1,215 @@
+% =================================================================
+% 1. 脑肿瘤医学背景与影像诊断 (Medical Background & Diagnosis)
+% =================================================================
+
+@article{Louis2021WHO,
+  title={The 2021 WHO Classification of Tumors of the Central Nervous System: a summary},
+  author={Louis, David N and Perry, Arie and Wesseling, Pieter and Brat, Daniel J and others},
+  journal={Neuro-Oncology},
+  volume={23},
+  number={8},
+  pages={1231--1251},
+  year={2021},
+  publisher={Oxford University Press}
+}
+% 核心思想：医学分类金标准。详细介绍了第五版中枢神经系统肿瘤分类指南，强调了分子标志物与组织形态结合的重要性，为本研究的四分类（胶质瘤、脑膜瘤、垂体瘤、无肿瘤）提供了严谨的病理学基准。
+
+@article{Starr2017Meningioma,
+  title={Meningioma mimics: five key imaging features to differentiate them from meningiomas},
+  author={Starr, C J and Cha, S},
+  journal={Clinical Radiology},
+  volume={72},
+  number={10},
+  pages={722--728},
+  year={2017},
+  publisher={Elsevier}
+}
+% 核心思想：影像学鉴别特征。通过对脑膜瘤及其模拟病变的对比，提出了“脑膜尾征”（Dural Tail Sign）缺失是区分的关键（83.7%）。这支撑了本模型中 CNN 模块捕捉边缘纹理和精细结构的必要性。
+
+@article{Hakyemez2005Glioma,
+  title={High-grade and low-grade gliomas: differentiation by using perfusion MR imaging},
+  author={Hakyemez, B and Erdogan, C and Ercan, I and others},
+  journal={Clinical Radiology},
+  volume={60},
+  number={4},
+  pages={493--502},
+  year={2005},
+  publisher={Elsevier}
+}
+% 核心思想：胶质瘤影像分级。通过灌注 MRI 参数（rCBV/rCBF）研究胶质瘤的分级特性，揭示了浸润性生长的影像表现，为模型处理边界模糊的恶性病灶提供了临床依据。
+
+@book{Smirniotopoulos2020Differential,
+  title={Differential Diagnosis of Intracranial Masses},
+  author={Smirniotopoulos, James G and J{\"a}ger, Hans Rolf},
+  year={2020},
+  publisher={StatPearls Publishing},
+  note={Bookshelf ID: NBK554352}
+}
+% 核心思想：鉴别诊断逻辑。系统论述了“占位效应”（Volume effect）和血管源性水肿对解剖结构的改变（如中线偏移），直接论证了本模型引入 Transformer 以捕捉全局空间变形逻辑的合理性。
+
+@article{Dai2021Pituitary,
+  title={How to Classify and Define Pituitary Tumors: Recent Advances and Current Controversies},
+  author={Dai, Congxin and Kang, Jun and Liu, Xiaohai and others},
+  journal={Frontiers in Endocrinology},
+  volume={12},
+  pages={604644},
+  year={2021},
+  publisher={Frontiers Media SA}
+}
+% 核心思想：垂体瘤专项研究。探讨了垂体腺瘤的最新分类与位置特性，强调了蝶鞍区这一特定解剖位置的诊断意义，支撑了模型中“位置编码（Positional Encoding）”的设计。
+
+@misc{Vaskovic2023Normal,
+  title={Normal brain MRI: Anatomy and MRI sequences},
+  author={Vaskovi{\'c}, Jana},
+  year={2023},
+  howpublished={\url{https://www.kenhub.com/en/library/anatomy/normal-brain-mri}},
+  note={Reviewed by Dimitrios Mytilinaios}
+}
+% 核心思想：解剖学基础。详细解释了 T1w、T2w、FLAIR 序列在正常脑部解剖（如脑室、丘脑、脑叶）中的信号特征，为模型理解“无肿瘤”类的基准特征提供了依据。
+
+@misc{Cleveland2024Brain,
+  title={Brain Tumor: Types, Symptoms, Diagnosis \& Treatment},
+  author={Cleveland Clinic},
+  year={2024},
+  howpublished={\url{https://my.clevelandclinic.org/health/diseases/6149-brain-cancer-brain-tumor}}
+}
+% 核心思想：临床综述。概括了 150 多种脑肿瘤的临床症状与诊断流程，提供了肿瘤生长压迫神经导致功能障碍的统计数据，用于撰写论文的背景意义。
+
+% =================================================================
+% 2. 深度学习与混合架构理论 (AI & Hybrid Architectures)
+% =================================================================
+
+@inproceedings{Graham2021LeViT,
+  title={LeViT: a Vision Transformer in ConvNet's Clothing for Faster Inference},
+  author={Graham, Ben and El-Nouby, Alaaeldin and Touvron, Hugo and others},
+  booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
+  pages={12259--12269},
+  year={2021}
+}
+% 核心思想：混合架构代表作。提出了 LeViT 框架，通过在 Transformer 前端引入卷积层（ConvNet's Clothing）来处理低级特征，解决了 ViT 训练慢的问题。本文模型设计的“卷积前端 + 注意力后端”结构主要源于此思路。
+
+@article{Chen2021TransUNet,
+  title={TransUNet: Transformers Make Strong Encoders for Medical Image Segmentation},
+  author={Chen, Jieneng and Lu, Yongyi and Yu, Qihang and others},
+  journal={arXiv preprint arXiv:2102.04306},
+  year={2021}
+}
+% 核心思想：医学影像融合奠基之作。首次将 Transformer 与 CNN 结合用于医学影像（虽然是分割任务），证明了 CNN 提取局部纹理与 Transformer 捕捉全局上下文的互补性，是本课题模型设计的理论支柱。
+
+@article{Younis2023Survey,
+  title={Deep Learning Techniques for the Classification of Brain Tumor: A Comprehensive Survey},
+  author={Younis, Ayesha and Li, Qiang and Khalid, Mudassar and others},
+  journal={IEEE Access},
+  volume={11},
+  pages={113063--113083},
+  year={2023},
+  publisher={IEEE}
+}
+% 核心思想：领域综述。系统总结了从经典 CNN 到混合深度学习模型在脑肿瘤分类中的应用，讨论了数据集规模与模型复杂度的平衡，为本实验选择 Sartaj 数据集及轻量化设计提供了文献对比。
+
+@article{Khalighi2024AI,
+  title={Artificial intelligence in neuro-oncology: advances and challenges in brain tumor diagnosis, prognosis, and precision treatment},
+  author={Khalighi, Sirvan and Reddy, Kartik and Midya, Abhishek and others},
+  journal={npj Precision Oncology},
+  volume={8},
+  number={1},
+  pages={80},
+  year={2024},
+  publisher={Nature Publishing Group}
+}
+% 核心思想：前沿挑战。探讨了 AI 在胶质瘤分子诊断中的超越性表现，强调了多模态数据集成和生成式 AI 的潜力，为本论文的“改进方向”部分提供了视角。
+
+@article{Lohmann2020Radiomics,
+  title={Radiomics in neuro-oncology: Basics, workflow, and applications},
+  author={Lohmann, Philipp and Galldiks, Norbert and Kocher, Martin and others},
+  journal={Methods},
+  year={2020},
+  publisher={Elsevier}
+}
+% 核心思想：影像组学。介绍了从 MRI 中提取纹理和空间特征的手动流程，论证了深度学习自动化特征提取的优越性，可用于模型创新点中“模拟自动化影像组学提取”的描述。
+
+% =================================================================
+% 3. 近期深度学习与混合架构前沿 (Recent DL & Hybrid Advances)
+% =================================================================
+
+@inproceedings{Ding2024VIT,
+  title={A High-Accuracy Brain Tumor Classification Method Based on VIT in the Context of Small Sample Size},
+  author={Ding, Jiahao and Fu, Bincheng},
+  booktitle={Proceedings of the 2024 3rd International Conference on Health Big Data and Intelligent Healthcare (ICHIH)},
+  pages={1--6},
+  year={2024},
+  publisher={IEEE}
+}
+% 核心思想：针对小样本情况下的脑肿瘤分类，利用 ViT 的自注意力机制捕捉区域关联，并结合增强技术，在准确率上超越了传统的 VGG 和 ResNet。
+
+@inproceedings{Ahmed2024Hybrid,
+  title={A Hybrid ViT-GRU Approach for Brain Tumor Detection and Classification in MRI Images with Explainable Artificial Intelligence},
+  author={Ahmed, Md. Mahfuz and Mahim, S M and others},
+  booktitle={Proceedings of the 2024 IEEE International Conference on Biomedical Engineering, Computer and Information Technology for Health (BECITHCON)},
+  year={2024},
+  publisher={IEEE}
+}
+% 核心思想：提出了 ViT 与 GRU 的混合架构，并引入可解释性 AI（XAI），不仅提升了分类精度，还使模型判读过程透明化。
+
+@inproceedings{Vani2025Efficient,
+  title={Efficient Classification of Multi-Lesion Brain Tumors Using Vision Transformer (ViT) Models},
+  author={Vani, H and Reddy, R Venkata Siva},
+  booktitle={Proceedings of the 2025 International Conference on Intelligent and Cloud Computing (ICoICC)},
+  year={2025},
+  publisher={IEEE}
+}
+% 核心思想：针对复杂的多病灶（Multi-Lesion）情况，利用 ViT 的长程依赖特性解决了传统 CNN 难以捕获全局空间细节的问题。
+
+@inproceedings{Hameed2025Feature,
+  title={Feature - Enriched Brain Tumor Classification Using ViT in GCN},
+  author={Hameed, Mohd Abdul and Boodidha, Murali Mohan and Padigala, Pavani},
+  booktitle={Proceedings of the 2025 International Conference on Emerging Techniques in Computational Intelligence (ICETCI)},
+  year={2025},
+  publisher={IEEE}
+}
+% 核心思想：一种极具创新性的尝试，将 ViT 的特征提取能力与图卷积网络（GCN）相结合，利用图结构建模病灶间的空间关系。
+
+@inproceedings{Govind2025Robust,
+  title={Robust Brain Tumor Classification using Transfer Learning and Convolutional Neural Networks},
+  author={Govind, Shrundan reddy and Kiruthika, M and Moparthi, Bhavana},
+  booktitle={Proceedings of the 2025 International Conference on Pervasive Computational Technologies (ICPCT)},
+  year={2025},
+  publisher={IEEE}
+}
+% 核心思想：利用迁移学习框架优化的 CNN 架构，旨在增强模型在处理不同来源 MRI 数据时的稳健性。
+
+@inproceedings{Banerjee2023Hyperparameter,
+  title={Brain Tumor Detection and Classification Using a Hyperparameter Tuned Convolutional Neural Network},
+  author={Banerjee, Amita and Sharma, Vandana and others},
+  booktitle={Proceedings of the 2023 6th International Conference on Contemporary Computing and Informatics (IC3I)},
+  year={2023},
+  publisher={IEEE}
+}
+% 核心思想：通过系统性的超参数调优（Hyperparameter Tuning）提升传统 CNN 的分类精度，为深度学习参数选择提供了实验参考。
+
+@inproceedings{Sakthi2023Deep,
+  title={Deep Convolutional Neural Network Framework for Brain Tumor Classification using MRI Images},
+  author={Sakthi, U and Thangaraj, K},
+  booktitle={Proceedings of the 2023 2nd International Conference on Automation, Computing and Renewable Systems (ICACRS)},
+  year={2023},
+  publisher={IEEE}
+}
+% 核心思想：提出了一个深度 CNN 框架，重点优化了分类层，以实现对不同风险等级脑肿瘤的高效识别。
+
+@inproceedings{Devi2021Detection,
+  title={Detection and Automated Classification of Brain Tumor Types in MRI Images using Convolutional Neural Network with Grid Search Optimization},
+  author={Devi, R Lakshmi},
+  booktitle={Proceedings of the 2021 Fifth International Conference on I-SMAC},
+  year={2021},
+  publisher={IEEE}
+}
+% 核心思想：利用网格搜索（Grid Search）优化算法自动确定 CNN 的最优超参数，实现了对正常、胶质瘤、脑膜瘤等类别的自动化分类。
+
+@inproceedings{Sharma2024Enhanced,
+  title={Enhanced Brain Tumor Classification Using Optimized Convolutional Neural Networks: A Deep Learning Approach},
+  author={Sharma, Ankita},
+  booktitle={Proceedings of the 2024 Global Conference on Communications and Information Technologies (GCCIT)},
+  year={2024},
+  publisher={IEEE}
+}
+% 核心思想：通过改进 Dropout 和扁平化层（Flattening layers），在保持计算效率的同时显著提升了模型的泛化能力。
