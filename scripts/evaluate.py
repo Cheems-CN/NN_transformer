@@ -24,6 +24,8 @@ from src.datasets.brain_tumor_dataset import BrainTumorDataset, get_transform
 from src.models.pure_cnn import PureCNN
 from src.models.vit import VisionTransformer
 from src.models.hybrid_model import HybridModel
+from src.models.parallel_model import ParallelModel
+from src.models.embedded_model import EmbeddedModel
 
 
 def create_model(model_type, num_classes=4):
@@ -49,6 +51,25 @@ def create_model(model_type, num_classes=4):
             n_layers=4,
             n_head=8,
             d_ff=2048,
+            dropout=0.1
+        )
+    elif model_type == 'parallel':
+        model = ParallelModel(
+            num_classes=num_classes,
+            feature_dim=512,
+            vit_d_model=512,
+            vit_n_layers=6,
+            vit_n_head=8,
+            vit_d_ff=2048,
+            dropout=0.1
+        )
+    elif model_type == 'embedded':
+        model = EmbeddedModel(
+            num_classes=num_classes,
+            base_channels=32,
+            transformer_channels=256,
+            n_head=4,
+            n_transformer_layers=2,
             dropout=0.1
         )
     else:
@@ -164,7 +185,7 @@ def print_results(results, model_name):
 def main():
     parser = argparse.ArgumentParser(description='评估脑肿瘤分类模型')
     parser.add_argument('--model', type=str, required=True,
-                       choices=['pure_cnn', 'pure_vit', 'hybrid'],
+                       choices=['pure_cnn', 'pure_vit', 'hybrid', 'parallel', 'embedded'],
                        help='模型类型')
     parser.add_argument('--checkpoint', type=str, required=True,
                        help='模型检查点路径')
