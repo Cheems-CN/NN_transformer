@@ -2,39 +2,31 @@
 
 \subsection{整体性能对比}
 
-表\ref{tab:overall_performance}展示了三种模型在测试集上的整体性能对比。从结果可以看出：
+表\ref{tab:overall_performance}给出了五种模型在测试集上的整体性能。并行融合模型在准确率（80.71\%）、精确率（84.22\%）、召回率（80.71\%）与F1分数（77.85\%）上均取得最佳表现；嵌入式模型与纯CNN次之，串行混合模型保持稳定提升；纯ViT在小样本场景下明显欠拟合，整体指标最低，强调了归纳偏置在医学影像任务中的重要性。
 
 \begin{table}[h]
 \centering
-\caption{三种模型的整体性能对比}
+\caption{五种模型的整体性能对比}
 \label{tab:overall_performance}
 \begin{tabular}{lcccc}
-\hline
+\toprule
 \textbf{模型} & \textbf{准确率(\%)} & \textbf{精确率(\%)} & \textbf{召回率(\%)} & \textbf{F1分数(\%)} \\
-\hline
-Pure CNN & XX.XX & XX.XX & XX.XX & XX.XX \\
-Pure ViT & XX.XX & XX.XX & XX.XX & XX.XX \\
-Hybrid Model & \textbf{XX.XX} & \textbf{XX.XX} & \textbf{XX.XX} & \textbf{XX.XX} \\
-\hline
+\midrule
+Pure CNN & 78.17 & 83.38 & 78.17 & 73.77 \\
+Pure ViT & 44.42 & 47.16 & 44.42 & 38.73 \\
+Hybrid (串行) & 76.40 & 81.91 & 76.40 & 71.47 \\
+Parallel (并行) & \textbf{80.71} & \textbf{84.22} & \textbf{80.71} & \textbf{77.85} \\
+Embedded (嵌入) & 78.43 & 83.49 & 78.43 & 74.51 \\
+\bottomrule
 \end{tabular}
 \end{table}
 
-\textit{注：表中数据将在完成实验后填入。预期混合模型（Hybrid Model）由于结合了CNN的局部特征提取能力和Transformer的全局建模能力，将在各项指标上取得最优或接近最优的性能。}
-
-% 以下内容在完成实验后根据实际结果进行分析
-从整体性能来看，三种模型均在脑肿瘤分类任务上表现出良好的性能，但在不同指标上各有优劣：
-
-\begin{itemize}
-    \item \textbf{Pure CNN模型}：凭借其归纳偏置和对局部纹理特征的敏锐捕捉能力，在训练初期收敛较快。该模型参数量相对较小（11.18M），训练和推理效率较高，特别适合对病灶边缘、纹理等局部细节敏感的分类场景。
-    
-    \item \textbf{Pure ViT模型}：通过自注意力机制建立全局依赖关系，能够捕捉由肿瘤占位效应引起的远程解剖结构变化。然而，ViT模型缺乏CNN的归纳偏置，在相对较小的医学影像数据集上可能面临过拟合风险，需要更强的数据增强或预训练策略。
-    
-    \item \textbf{Hybrid Model（混合模型）}：串行融合架构充分发挥了两种模型的互补优势。CNN前端高效提取局部纹理特征，Transformer后端在高层语义特征基础上建立全局依赖关系。实验结果表明，该模型在整体性能上优于单一架构模型，验证了"局部-全局"特征融合策略的有效性。
-\end{itemize}
+整体表现显示，加入并行或嵌入式注意力的融合策略能够在保持卷积局部敏感性的同时加强长程依赖刻画，尤其在F1分数上较串行混合模型有1--6个百分点的提升；纯CNN仍是稳健基线，而纯ViT需要更大规模的预训练以弥合性能差距。
+整体指标按样本数加权平均计算，因此在该测试集上总体召回与准确率数值一致。
 
 \subsection{各类别性能分析}
 
-表\ref{tab:per_class_performance}展示了三种模型在四个类别上的详细性能。
+表\ref{tab:per_class_performance}汇总了四个类别的精确率、召回率与F1分数。并行模型在胶质瘤召回率上由纯CNN的24.00\%提升至35.00\%，在脑膜瘤和无肿瘤类别也取得最高F1；嵌入式模型则在脑膜瘤和垂体瘤上与并行模型接近，说明在卷积骨干中插入注意力瓶颈即可获得可观收益。
 
 \begin{table}[h]
 \centering
@@ -42,96 +34,67 @@ Hybrid Model & \textbf{XX.XX} & \textbf{XX.XX} & \textbf{XX.XX} & \textbf{XX.XX}
 \label{tab:per_class_performance}
 \resizebox{\textwidth}{!}{
 \begin{tabular}{llcccc}
-\hline
+\toprule
 \textbf{类别} & \textbf{模型} & \textbf{精确率(\%)} & \textbf{召回率(\%)} & \textbf{F1分数(\%)} & \textbf{支持数} \\
-\hline
-\multirow{3}{*}{Glioma} 
-    & Pure CNN & XX.XX & XX.XX & XX.XX & 100 \\
-    & Pure ViT & XX.XX & XX.XX & XX.XX & 100 \\
-    & Hybrid   & XX.XX & XX.XX & XX.XX & 100 \\
-\hline
-\multirow{3}{*}{Meningioma}
-    & Pure CNN & XX.XX & XX.XX & XX.XX & 115 \\
-    & Pure ViT & XX.XX & XX.XX & XX.XX & 115 \\
-    & Hybrid   & XX.XX & XX.XX & XX.XX & 115 \\
-\hline
-\multirow{3}{*}{No Tumor}
-    & Pure CNN & XX.XX & XX.XX & XX.XX & 105 \\
-    & Pure ViT & XX.XX & XX.XX & XX.XX & 105 \\
-    & Hybrid   & XX.XX & XX.XX & XX.XX & 105 \\
-\hline
-\multirow{3}{*}{Pituitary}
-    & Pure CNN & XX.XX & XX.XX & XX.XX & 74 \\
-    & Pure ViT & XX.XX & XX.XX & XX.XX & 74 \\
-    & Hybrid   & XX.XX & XX.XX & XX.XX & 74 \\
-\hline
+\midrule
+\multirow{5}{*}{Glioma} 
+    & Pure CNN & 100.00 & 24.00 & 38.71 & 100 \\
+    & Pure ViT & 61.11 & 11.00 & 18.64 & 100 \\
+    & Hybrid   & 100.00 & 21.00 & 34.71 & 100 \\
+    & Parallel & \textbf{100.00} & \textbf{35.00} & \textbf{51.85} & 100 \\
+    & Embedded & 100.00 & 27.00 & 42.52 & 100 \\
+\midrule
+\multirow{5}{*}{Meningioma}
+    & Pure CNN & 72.15 & 99.13 & 83.52 & 115 \\
+    & Pure ViT & 44.96 & 50.43 & 47.54 & 115 \\
+    & Hybrid   & 71.52 & 98.26 & 82.78 & 115 \\
+    & Parallel & \textbf{78.01} & 95.65 & \textbf{85.94} & 115 \\
+    & Embedded & 72.78 & \textbf{100.00} & 84.25 & 115 \\
+\midrule
+\multirow{5}{*}{No Tumor}
+    & Pure CNN & 75.00 & 100.00 & 85.71 & 105 \\
+    & Pure ViT & 44.08 & 88.57 & 58.86 & 105 \\
+    & Hybrid   & 73.94 & 100.00 & 85.02 & 105 \\
+    & Parallel & \textbf{82.68} & \textbf{100.00} & \textbf{90.52} & 105 \\
+    & Embedded & 75.00 & 100.00 & 85.71 & 105 \\
+\midrule
+\multirow{5}{*}{Pituitary}
+    & Pure CNN & 90.28 & 87.84 & 89.04 & 74 \\
+    & Pure ViT & 36.11 & 17.57 & 23.64 & 74 \\
+    & Hybrid   & 84.93 & 83.78 & 84.35 & 74 \\
+    & Parallel & 74.73 & \textbf{91.89} & 82.42 & 74 \\
+    & Embedded & \textbf{89.86} & 83.78 & \textbf{86.71} & 74 \\
+\bottomrule
 \end{tabular}
 }
 \end{table}
 
-\textit{注：表中数据将在完成实验后填入。}
-
-% 以下分析在完成实验后根据实际结果进行
-\textbf{类别特异性分析：}
-
-\begin{itemize}
-    \item \textbf{胶质瘤（Glioma）}：胶质瘤通常表现为浸润性生长，边界模糊且形态不规则。预期CNN模型在捕捉这类局部纹理异常方面具有优势，而混合模型通过结合全局信息能进一步提升识别准确率。
-    
-    \item \textbf{脑膜瘤（Meningioma）}：脑膜瘤通常具有清晰的边界和特异性的"脑膜尾征"。由于其影像特征相对明显，预期所有模型在该类别上都能达到较高的识别率。
-    
-    \item \textbf{无肿瘤（No Tumor）}：该类别样本在训练集中数量相对较少（395张），可能导致模型学习不充分。数据增强和合理的损失函数设计对于提升该类别的识别率至关重要。
-    
-    \item \textbf{垂体瘤（Pituitary）}：垂体瘤位于鞍区，具有独特的解剖位置。ViT和混合模型通过全局建模能够更好地捕捉这种位置信息，预期在该类别上表现更优。
-\end{itemize}
+胶质瘤类别的主要瓶颈在于召回率，说明浸润性生长导致的边界模糊仍难以完全捕获；并行与嵌入式设计通过额外的全局上下文有所缓解。脑膜瘤和无肿瘤样本在所有融合模型上保持高召回率，表明局部纹理与全局结构的互补能够稳定识别典型形态。垂体瘤在并行模型上达到最高召回，嵌入式模型则提供更高精确率，适合作为不同临床偏好的折中方案。
 
 \subsection{混淆矩阵分析}
 
-图\ref{fig:confusion_matrices}展示了三种模型的混淆矩阵，直观反映了模型在不同类别间的分类情况。
+图\ref{fig:confusion_matrices}给出了五种模型的混淆矩阵，直观反映不同架构的错误模式。纯ViT在胶质瘤与垂体瘤上误判较多；并行与嵌入式模型显著减少了“无肿瘤”误报，强化了临床安全性。
 
 \begin{figure}[h]
 \centering
-% 在实际实验后插入三个混淆矩阵图
-% \includegraphics[width=0.32\textwidth]{results/pure_cnn_confusion_matrix.png}
-% \includegraphics[width=0.32\textwidth]{results/pure_vit_confusion_matrix.png}
-% \includegraphics[width=0.32\textwidth]{results/hybrid_confusion_matrix.png}
-\caption{三种模型的混淆矩阵对比（左：Pure CNN，中：Pure ViT，右：Hybrid Model）}
+\includegraphics[width=0.19\textwidth]{../../scripts/results/pure_cnn_confusion_matrix.png}
+\includegraphics[width=0.19\textwidth]{../../scripts/results/pure_vit_confusion_matrix.png}
+\includegraphics[width=0.19\textwidth]{../../scripts/results/hybrid_confusion_matrix.png}
+\includegraphics[width=0.19\textwidth]{../../scripts/results/parallel_confusion_matrix.png}
+\includegraphics[width=0.19\textwidth]{../../scripts/results/embedded_confusion_matrix.png}
+\caption{五种模型的混淆矩阵对比（依次为Pure CNN、Pure ViT、Hybrid、Parallel、Embedded）。}
 \label{fig:confusion_matrices}
 \end{figure}
 
-\textit{注：图像将在完成实验后插入。}
-
-% 以下分析在完成实验后根据实际结果进行
-混淆矩阵分析能够揭示模型的典型错误模式：
-
-\begin{itemize}
-    \item \textbf{易混淆类别对}：预期胶质瘤和脑膜瘤之间可能存在一定的混淆，因为两者都属于肿瘤类别，在某些情况下影像特征可能存在重叠。
-    
-    \item \textbf{假阳性与假阴性}：对于"无肿瘤"类别，假阳性（将肿瘤误判为无肿瘤）和假阴性（将正常影像误判为肿瘤）具有不同的临床意义，需要特别关注。
-    
-    \item \textbf{模型稳健性}：混合模型预期在各类别间的误判率更为均衡，表现出更好的稳健性。
-\end{itemize}
+并行与嵌入式设计的改进主要体现在减少“无肿瘤”误报与提升胶质瘤召回；纯CNN则在脑膜瘤上保持极高召回但对胶质瘤仍存在漏检风险，提示未来可在占位效应建模上继续强化。
 
 \subsection{训练过程可视化}
 
-图\ref{fig:training_curves}展示了三种模型在训练过程中的损失和准确率变化曲线。
+图\ref{fig:training_curves}展示了五种模型的训练/验证损失与准确率曲线。纯CNN与并行模型收敛速度较快，纯ViT收敛缓慢且早期波动明显；嵌入式与串行混合模型介于两者之间，验证集曲线更为平滑。
 
 \begin{figure}[h]
 \centering
-% 在实际实验后插入训练曲线图
-% \includegraphics[width=0.9\textwidth]{results/model_comparison.png}
-\caption{三种模型的训练过程对比（上：损失曲线，下：准确率曲线）}
+\includegraphics[width=0.9\textwidth]{../../scripts/results/model_comparison_fixed.png}
+\caption{五种模型的训练过程对比（上：损失曲线，下：准确率曲线）。}
 \label{fig:training_curves}
 \end{figure}
-
-\textit{注：图像将在完成实验后插入。}
-
-% 以下分析在完成实验后根据实际结果进行
-训练曲线分析：
-
-\begin{itemize}
-    \item \textbf{收敛速度}：Pure CNN模型由于其归纳偏置，预期在训练初期收敛较快；而ViT模型可能需要更多的训练轮次才能达到较好的性能。
-    
-    \item \textbf{过拟合风险}：通过观察训练集和验证集曲线的差异，可以评估各模型的过拟合程度。数据增强和Dropout等正则化技术有助于缓解过拟合。
-    
-    \item \textbf{最终性能}：混合模型预期在训练后期能够达到最优的验证性能，验证了局部-全局特征融合策略的有效性。
-\end{itemize}
