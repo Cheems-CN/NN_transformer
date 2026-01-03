@@ -1,0 +1,100 @@
+\begin{thebibliography}{10}
+
+\bibitem{Louis2021WHO}
+David~N Louis, Arie Perry, Pieter Wesseling, Daniel~J Brat, et~al.
+\newblock The 2021 who classification of tumors of the central nervous system: a summary.
+\newblock {\em Neuro-Oncology}, 23(8):1231--1251, 2021.
+
+\bibitem{Vaskovic2023Normal}
+Jana Vaskovi{\'c}.
+\newblock Normal brain mri: Anatomy and mri sequences.
+\newblock \url{https://www.kenhub.com/en/library/anatomy/normal-brain-mri}, 2023.
+\newblock Reviewed by Dimitrios Mytilinaios.
+
+\bibitem{Younis2023Survey}
+Ayesha Younis, Qiang Li, Mudassar Khalid, et~al.
+\newblock Deep learning techniques for the classification of brain tumor: A comprehensive survey.
+\newblock {\em IEEE Access}, 11:113063--113083, 2023.
+
+\bibitem{Khalighi2024AI}
+Sirvan Khalighi, Kartik Reddy, Abhishek Midya, et~al.
+\newblock Artificial intelligence in neuro-oncology: advances and challenges in brain tumor diagnosis, prognosis, and precision treatment.
+\newblock {\em npj Precision Oncology}, 8(1):80, 2024.
+
+\bibitem{Hakyemez2005Glioma}
+B~Hakyemez, C~Erdogan, I~Ercan, et~al.
+\newblock High-grade and low-grade gliomas: differentiation by using perfusion mr imaging.
+\newblock {\em Clinical Radiology}, 60(4):493--502, 2005.
+
+\bibitem{Starr2017Meningioma}
+C~J Starr and S~Cha.
+\newblock Meningioma mimics: five key imaging features to differentiate them from meningiomas.
+\newblock {\em Clinical Radiology}, 72(10):722--728, 2017.
+
+\bibitem{Smirniotopoulos2020Differential}
+James~G Smirniotopoulos and Hans~Rolf J{\"a}ger.
+\newblock {\em Differential Diagnosis of Intracranial Masses}.
+\newblock StatPearls Publishing, 2020.
+\newblock Bookshelf ID: NBK554352.
+
+\bibitem{Cleveland2024Brain}
+Cleveland Clinic.
+\newblock Brain tumor: Types, symptoms, diagnosis \& treatment.
+\newblock \url{https://my.clevelandclinic.org/health/diseases/6149-brain-cancer-brain-tumor}, 2024.
+
+\bibitem{Lohmann2020Radiomics}
+Philipp Lohmann, Norbert Galldiks, Martin Kocher, et~al.
+\newblock Radiomics in neuro-oncology: Basics, workflow, and applications.
+\newblock {\em Methods}, 2020.
+
+\bibitem{Devi2021Detection}
+R~Lakshmi Devi.
+\newblock Detection and automated classification of brain tumor types in mri images using convolutional neural network with grid search optimization.
+\newblock In {\em Proceedings of the 2021 Fifth International Conference on I-SMAC}. IEEE, 2021.
+
+\bibitem{Banerjee2023Hyperparameter}
+Amita Banerjee, Vandana Sharma, et~al.
+\newblock Brain tumor detection and classification using a hyperparameter tuned convolutional neural network.
+\newblock In {\em Proceedings of the 2023 6th International Conference on Contemporary Computing and Informatics (IC3I)}. IEEE, 2023.
+
+\bibitem{Sharma2024Enhanced}
+Ankita Sharma.
+\newblock Enhanced brain tumor classification using optimized convolutional neural networks: A deep learning approach.
+\newblock In {\em Proceedings of the 2024 Global Conference on Communications and Information Technologies (GCCIT)}. IEEE, 2024.
+
+\bibitem{Sakthi2023Deep}
+U~Sakthi and K~Thangaraj.
+\newblock Deep convolutional neural network framework for brain tumor classification using mri images.
+\newblock In {\em Proceedings of the 2023 2nd International Conference on Automation, Computing and Renewable Systems (ICACRS)}. IEEE, 2023.
+
+\bibitem{Govind2025Robust}
+Shrundan~reddy Govind, M~Kiruthika, and Bhavana Moparthi.
+\newblock Robust brain tumor classification using transfer learning and convolutional neural networks.
+\newblock In {\em Proceedings of the 2025 International Conference on Pervasive Computational Technologies (ICPCT)}. IEEE, 2025.
+
+\bibitem{Ding2024VIT}
+Jiahao Ding and Bincheng Fu.
+\newblock A high-accuracy brain tumor classification method based on vit in the context of small sample size.
+\newblock In {\em Proceedings of the 2024 3rd International Conference on Health Big Data and Intelligent Healthcare (ICHIH)}, pages 1--6. IEEE, 2024.
+
+\bibitem{Chen2021TransUNet}
+Jieneng Chen, Yongyi Lu, Qihang Yu, et~al.
+\newblock Transunet: Transformers make strong encoders for medical image segmentation.
+\newblock {\em arXiv preprint arXiv:2102.04306}, 2021.
+
+\bibitem{Vani2025Efficient}
+H~Vani and R~Venkata~Siva Reddy.
+\newblock Efficient classification of multi-lesion brain tumors using vision transformer (vit) models.
+\newblock In {\em Proceedings of the 2025 International Conference on Intelligent and Cloud Computing (ICoICC)}. IEEE, 2025.
+
+\bibitem{Hameed2025Feature}
+Mohd~Abdul Hameed, Murali~Mohan Boodidha, and Pavani Padigala.
+\newblock Feature - enriched brain tumor classification using vit in gcn.
+\newblock In {\em Proceedings of the 2025 International Conference on Emerging Techniques in Computational Intelligence (ICETCI)}. IEEE, 2025.
+
+\bibitem{Ahmed2024Hybrid}
+Md.~Mahfuz Ahmed, S~M Mahim, et~al.
+\newblock A hybrid vit-gru approach for brain tumor detection and classification in mri images with explainable artificial intelligence.
+\newblock In {\em Proceedings of the 2024 IEEE International Conference on Biomedical Engineering, Computer and Information Technology for Health (BECITHCON)}. IEEE, 2024.
+
+\end{thebibliography}

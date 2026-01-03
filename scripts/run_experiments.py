@@ -43,7 +43,7 @@ def train_all_models(data_root, epochs, batch_size):
         print(f"{'#'*70}")
         
         cmd = [
-            'python3', 'scripts/train.py',
+            'python3', 'train.py',
             '--model', model_name,
             '--data_root', data_root,
             '--batch_size', str(batch_size),
@@ -75,7 +75,7 @@ def evaluate_all_models(data_root, batch_size):
         print(f"{'#'*70}")
         
         cmd = [
-            'python3', 'scripts/evaluate.py',
+            'python3', 'evaluate.py',
             '--model', model_name,
             '--checkpoint', checkpoint_path,
             '--data_root', data_root,
@@ -268,7 +268,7 @@ def main():
     
     parser = argparse.ArgumentParser(description='运行完整实验流程')
     parser.add_argument('--data_root', type=str,
-                       default='/home/runner/work/NN_transformer/NN_transformer/data/raw',
+                       default='../data/raw',
                        help='数据根目录')
     parser.add_argument('--epochs', type=int, default=50, help='训练轮数')
     parser.add_argument('--batch_size', type=int, default=32, help='批大小')
